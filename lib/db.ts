@@ -127,7 +127,7 @@ async function connect(): Promise<Db> {
     const local = /localhost|127\.0\.0\.1/.test(url);
     const sql = postgres(url, {
       ssl: local ? false : 'require',
-      max: 3,
+      max: Number(process.env.DB_POOL_MAX) || 3,
       prepare: false,
       idle_timeout: 20,
       connect_timeout: 15,
@@ -135,7 +135,10 @@ async function connect(): Promise<Db> {
     });
     return {
       kind: 'postgres',
-      query: async (text, params = []) => (await sql.unsafe(text, params as any[])) as unknown as Row[],
+      // We always pass JSON as strings. Casting through text stops the driver from
+      // JSON-encoding those strings a second time.
+      query: async (text, params = []) =>
+        (await sql.unsafe(text.replace(/\$(\d+)::jsonb/g, '($$$1::text)::jsonb'), params as any[])) as unknown as Row[],
     };
   }
   const { PGlite } = await import('@electric-sql/pglite');
@@ -150,9 +153,21 @@ async function connect(): Promise<Db> {
   };
 }
 
+// Repairs JSON values that an earlier version stored as quoted strings. Safe to run every start.
+const REPAIRS: [string, string[]][] = [
+  ['settings', ['value']],
+  ['products', ['images', 'variants']],
+  ['orders', ['customer', 'address', 'items', 'payment', 'shipping', 'timeline']],
+];
+
 async function init(): Promise<Db> {
   const db = await connect();
   for (const stmt of SCHEMA) await db.query(stmt);
+  for (const [table, cols] of REPAIRS) {
+    for (const col of cols) {
+      await db.query(`UPDATE ${table} SET ${col} = (${col} #>> '{}')::jsonb WHERE jsonb_typeof(${col}) = 'string'`);
+    }
+  }
   await seedDatabase(db);
   return db;
 }
