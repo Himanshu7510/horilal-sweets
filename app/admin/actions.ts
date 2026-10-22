@@ -63,11 +63,51 @@ export async function changeCredentials(values: { email: string; current: string
 
 // ---------- Settings (brand, homepage, footer, SEO, payments, delivery) ----------
 
-const EDITABLE = ['site', 'home', 'footer', 'seo', 'payment', 'delivery'];
+const EDITABLE = ['site', 'home', 'footer', 'seo', 'payment', 'delivery', 'whatsapp', 'tracking'];
+
+// Accepts IDs pasted with extra text (a whole <meta> tag or script snippet) and checks their format.
+function cleanTracking(v: Record<string, any>): string | null {
+  const metaContent = (s: string) => {
+    const m = String(s || '').match(/content=["']([^"']+)["']/);
+    return (m ? m[1] : String(s || '')).trim();
+  };
+  const pick = (s: string, re: RegExp) => (String(s || '').toUpperCase().match(re) || [''])[0];
+  v.metaPixelId = (String(v.metaPixelId || '').match(/\d{6,20}/) || [''])[0];
+  v.ga4Id = pick(v.ga4Id, /G-[A-Z0-9]{4,15}/);
+  v.gtmId = pick(v.gtmId, /GTM-[A-Z0-9]{4,12}/);
+  v.googleAdsId = pick(v.googleAdsId, /AW-\d{6,15}/);
+  for (const k of ['googleAdsPurchaseLabel', 'googleAdsCartLabel']) {
+    let s = String(v[k] || '').trim();
+    if (s.includes('/')) s = s.split('/').pop() || '';
+    v[k] = s.replace(/['"\s]/g, '');
+  }
+  v.searchConsoleToken = metaContent(v.searchConsoleToken);
+  v.metaDomainVerification = metaContent(v.metaDomainVerification);
+  const bad: string[] = [];
+  const raw = (k: string) => String(v[k] || '');
+  if (raw('googleAdsPurchaseLabel') && !/^[A-Za-z0-9_-]{4,40}$/.test(raw('googleAdsPurchaseLabel'))) bad.push('purchase conversion label');
+  if (raw('googleAdsCartLabel') && !/^[A-Za-z0-9_-]{4,40}$/.test(raw('googleAdsCartLabel'))) bad.push('add-to-cart conversion label');
+  if (raw('searchConsoleToken') && !/^[A-Za-z0-9_-]{10,100}$/.test(raw('searchConsoleToken'))) bad.push('Search Console code');
+  if (raw('metaDomainVerification') && !/^[A-Za-z0-9_-]{10,100}$/.test(raw('metaDomainVerification'))) bad.push('Meta domain verification code');
+  return bad.length ? `Check the ${bad.join(', ')} — it doesn’t look right.` : null;
+}
 
 export async function saveSettingsAction(key: string, values: Record<string, any>): Promise<Result> {
   await requireAdmin();
   if (!EDITABLE.includes(key)) return fail('Unknown settings section.');
+  if (key === 'tracking') {
+    const typed = { ...values };
+    const problem = cleanTracking(values);
+    if (problem) return fail(problem);
+    const dropped = ['metaPixelId', 'ga4Id', 'gtmId', 'googleAdsId'].filter((k) => String(typed[k] || '').trim() && !values[k]);
+    if (dropped.length) {
+      const names: Record<string, string> = { metaPixelId: 'Meta Pixel ID', ga4Id: 'GA4 ID (G-…)', gtmId: 'GTM ID (GTM-…)', googleAdsId: 'Google Ads ID (AW-…)' };
+      return fail(`Check the ${dropped.map((k) => names[k]).join(', ')} — it doesn’t look right.`);
+    }
+  }
+  if (key === 'whatsapp' && values.number && String(values.number).replace(/\D/g, '').length < 10) {
+    return fail('Enter a full WhatsApp number (at least 10 digits).');
+  }
   await saveSetting(key, values);
   done();
   return ok('Changes saved and live on your store.');

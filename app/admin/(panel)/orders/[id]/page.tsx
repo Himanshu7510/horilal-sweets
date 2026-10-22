@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { q1 } from '@/lib/db';
 import { getSetting } from '@/lib/settings';
 import { inr, fmtDate } from '@/lib/format';
-import { ORDER_STATUSES } from '@/lib/defaults';
+import { ORDER_STATUSES, paymentMethodLabel } from '@/lib/defaults';
 import { Badge, Card, PageHeader, btnLight } from '@/components/admin/Page';
 import { StatusForm, NoteForm, ManualShipping, ShiprocketPanel, PaymentActions } from './OrderActions';
 import { deleteOrder } from '../../../actions';
@@ -125,7 +125,7 @@ export default async function OrderDetail({ params }: { params: Promise<{ id: st
 
           <Card title="Payment">
             <div className="space-y-1 text-sm">
-              <div className="flex justify-between"><span>Method</span><strong>{o.payment_method === 'cod' ? 'Cash on delivery' : 'Online (Razorpay)'}</strong></div>
+              <div className="flex justify-between"><span>Method</span><strong>{paymentMethodLabel(o.payment_method)}</strong></div>
               <div className="flex justify-between"><span>Status</span><Badge value={o.payment_status} label={o.payment_status.replace('_', ' ')} /></div>
               {o.payment?.razorpayPaymentId && <div className="flex justify-between gap-2"><span>Payment ID</span><span className="truncate font-mono text-xs">{o.payment.razorpayPaymentId}</span></div>}
               {o.payment?.reference && <div className="flex justify-between gap-2"><span>Reference</span><span>{o.payment.reference}</span></div>}

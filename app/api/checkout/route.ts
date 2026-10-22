@@ -11,7 +11,8 @@ export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
   const c = body.customer || {};
   const a = body.address || {};
-  const paymentMethod = body.paymentMethod === 'online' ? 'online' : 'cod';
+  const paymentMethod: 'online' | 'cod' | 'whatsapp' =
+    body.paymentMethod === 'online' ? 'online' : body.paymentMethod === 'whatsapp' ? 'whatsapp' : 'cod';
 
   const customer = { name: clean(c.name, 80), phone: clean(c.phone, 15).replace(/[^\d+]/g, ''), email: clean(c.email, 120) };
   const address = {
@@ -35,11 +36,12 @@ export async function POST(req: Request) {
   const pin = await checkPincode(address.pincode);
   if (!pin.ok) return NextResponse.json({ error: pin.message }, { status: 400 });
 
-  const priced = await priceCart(body.items || [], { coupon: body.coupon, paymentMethod: paymentMethod === 'cod' ? 'cod' : 'online' });
+  const priced = await priceCart(body.items || [], { coupon: body.coupon, paymentMethod });
   if (!priced.lines.length) return NextResponse.json({ error: 'Your cart is empty.' }, { status: 400 });
   if (priced.errors.length) return NextResponse.json({ error: priced.errors.join(' '), priced }, { status: 409 });
   if (paymentMethod === 'cod' && !priced.codAvailable) return NextResponse.json({ error: 'Cash on delivery isn’t available for this order.' }, { status: 400 });
   if (paymentMethod === 'online' && !priced.onlineAvailable) return NextResponse.json({ error: 'Online payment isn’t available right now. Choose cash on delivery.' }, { status: 400 });
+  if (paymentMethod === 'whatsapp' && !priced.whatsappAvailable) return NextResponse.json({ error: 'WhatsApp ordering isn’t available right now.' }, { status: 400 });
 
   const orderNumber = await newOrderNumber();
   const order = await q1(
@@ -56,16 +58,16 @@ export async function POST(req: Request) {
       priced.codFee,
       priced.total,
       priced.couponCode,
-      paymentMethod === 'cod' ? 'cod' : 'razorpay',
+      paymentMethod === 'online' ? 'razorpay' : paymentMethod,
       clean(body.note, 500),
     ]
   );
   await addTimeline(order.id, 'pending_payment', 'Order created');
   const token = await orderToken(orderNumber);
 
-  if (paymentMethod === 'cod') {
+  if (paymentMethod === 'cod' || paymentMethod === 'whatsapp') {
     await finalizeOrder(order.id);
-    return NextResponse.json({ orderNumber, redirect: `/order/${orderNumber}?t=${token}` });
+    return NextResponse.json({ orderNumber, redirect: `/order/${orderNumber}?t=${token}${paymentMethod === 'whatsapp' ? '&wa=1' : ''}` });
   }
 
   try {

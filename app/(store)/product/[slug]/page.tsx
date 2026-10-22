@@ -8,6 +8,8 @@ import { AddToCart } from '@/components/store/AddToCart';
 import { PincodeCheck } from '@/components/store/PincodeCheck';
 import { Gallery } from '@/components/store/Gallery';
 import { paragraphs } from '@/lib/markdown';
+import { publicWaConfig } from '@/lib/whatsapp';
+import { ViewItemTracker } from '@/components/store/PurchaseTracker';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const p = await getProductBySlug((await params).slug);
@@ -19,11 +21,14 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const { slug } = await params;
   const p = await getProductBySlug(slug);
   if (!p) notFound();
-  const [site, delivery, related] = await Promise.all([
+  const [site, delivery, waSettings, related] = await Promise.all([
     getSetting('site'),
     getSetting('delivery'),
+    getSetting('whatsapp'),
     p.category_slug ? listProducts({ category: p.category_slug }) : Promise.resolve([]),
   ]);
+  const wa = publicWaConfig(waSettings, site);
+  const v0 = p.variants?.[0];
   const more = related.filter((r) => r.id !== p.id).slice(0, 4);
 
   return (
@@ -51,7 +56,9 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
           <AddToCart
             product={{ id: p.id, name: p.name, slug: p.slug, image: p.images?.[0] || '', variants: p.variants || [] }}
+            wa={wa.product ? { number: wa.number, message: wa.productMessage } : null}
           />
+          {v0 && <ViewItemTracker item={{ id: String(p.id), name: p.name, variant: v0.label, price: Number(v0.price), qty: 1 }} />}
 
           <div className="mt-6">
             <PincodeCheck />

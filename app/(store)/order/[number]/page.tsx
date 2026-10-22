@@ -5,6 +5,10 @@ import { getOrderByNumber, orderToken } from '@/lib/orders';
 import { safeEqual } from '@/lib/crypto';
 import { fmtDate, inr } from '@/lib/format';
 import { statusLabel } from '@/lib/defaults';
+import { getSetting } from '@/lib/settings';
+import { waLink, fillTemplate, itemLines, rupees } from '@/lib/whatsapp';
+import { WhatsAppIcon } from '@/components/store/WhatsAppIcon';
+import { PurchaseTracker } from '@/components/store/PurchaseTracker';
 
 export const metadata: Metadata = { title: 'Your order', robots: { index: false } };
 
@@ -25,6 +29,24 @@ export default async function OrderPage({
   const stepIndex = STEPS.indexOf(order.status === 'out_for_delivery' ? 'shipped' : order.status);
   const awaiting = order.status === 'pending_payment';
   const closed = ['cancelled', 'returned'].includes(order.status);
+
+  let waUrl = '';
+  if (order.payment_method === 'whatsapp' && !closed) {
+    const [wa, site] = await Promise.all([getSetting('whatsapp'), getSetting('site')]);
+    const a = order.address || {};
+    waUrl = waLink(
+      wa.number || site.whatsapp,
+      fillTemplate(wa.orderMessage, {
+        order: order.order_number,
+        items: itemLines(order.items || []),
+        total: rupees(order.total),
+        name: order.customer?.name || '',
+        phone: order.customer?.phone || '',
+        address: [a.line1, a.line2, a.landmark, a.city, a.state, a.pincode].filter(Boolean).join(', '),
+        note: order.note || '',
+      })
+    );
+  }
 
   return (
     <div className="mx-auto max-w-3xl px-4 pt-10 sm:px-6">
@@ -47,6 +69,31 @@ export default async function OrderPage({
             Your order <strong className="text-ink">{order.order_number}</strong> is confirmed. Save this page to check its status anytime.
           </p>
         </>
+      )}
+
+      {waUrl && (
+        <div className="mt-6 rounded-[22px] bg-[#E7F8EE] p-5">
+          <p className="font-semibold text-[#14532d]">One last step: send your order to us on WhatsApp</p>
+          <p className="mt-1 text-[15px] text-[#14532d]/80">We’ll reply to confirm availability, delivery time and how to pay.</p>
+          <a
+            href={waUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="btn mt-4 bg-[#25D366] px-6 py-3 text-base text-white hover:bg-[#1ebe5b]"
+          >
+            <WhatsAppIcon size={20} /> Send order on WhatsApp
+          </a>
+        </div>
+      )}
+
+      {!awaiting && !closed && (
+        <PurchaseTracker
+          order={{
+            number: order.order_number,
+            total: order.total,
+            items: (order.items || []).map((i: any) => ({ id: String(i.productId), name: i.name, variant: i.variant, price: i.price, qty: i.qty })),
+          }}
+        />
       )}
 
       {!awaiting && !closed && (
@@ -94,7 +141,7 @@ export default async function OrderPage({
           <div className="flex justify-between pt-2 text-lg font-bold"><dt>Total</dt><dd>{inr(order.total)}</dd></div>
           <div className="flex justify-between text-ink-soft">
             <dt>Payment</dt>
-            <dd>{order.payment_method === 'cod' ? 'Cash on delivery' : order.payment_status === 'paid' ? 'Paid online' : 'Online — not completed'}</dd>
+            <dd>{order.payment_method === 'cod' ? 'Cash on delivery' : order.payment_method === 'whatsapp' ? (order.payment_status === 'paid' ? 'Paid' : 'To be confirmed on WhatsApp') : order.payment_status === 'paid' ? 'Paid online' : 'Online — not completed'}</dd>
           </div>
         </dl>
       </div>

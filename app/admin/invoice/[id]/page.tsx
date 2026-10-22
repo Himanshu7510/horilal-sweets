@@ -4,6 +4,7 @@ import { q1 } from '@/lib/db';
 import { getSetting } from '@/lib/settings';
 import { inr, fmtDay } from '@/lib/format';
 import { PrintButton } from './PrintButton';
+import { paymentMethodLabel } from '@/lib/defaults';
 
 export const metadata = { title: 'Invoice', robots: { index: false } };
 
@@ -42,7 +43,7 @@ export default async function Invoice({ params }: { params: Promise<{ id: string
         </div>
         <div className="text-right">
           <div className="font-semibold">Payment</div>
-          <p className="text-gray-700">{o.payment_method === 'cod' ? 'Cash on delivery' : 'Paid online'}<br />Status: {o.payment_status}</p>
+          <p className="text-gray-700">{paymentMethodLabel(o.payment_method)}<br />Status: {o.payment_status}</p>
         </div>
       </div>
       <table className="w-full border-collapse">

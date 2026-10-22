@@ -1,22 +1,27 @@
 import Link from 'next/link';
 import { CartProvider } from '@/components/store/CartContext';
 import { AddedToast, CartButton } from '@/components/store/CartButton';
-import { getSiteBundle } from '@/lib/settings';
+import { getSiteBundle, getSetting } from '@/lib/settings';
+import { TrackingScripts } from '@/components/store/TrackingScripts';
+import { FloatingWhatsApp } from '@/components/store/WaButton';
+import { waLink } from '@/lib/whatsapp';
 import { listCategories, listPages } from '@/lib/catalog';
 
 export default async function StoreLayout({ children }: { children: React.ReactNode }) {
   const { site, footer } = await getSiteBundle();
-  const [headerPages, footerPages, categories] = await Promise.all([
+  const [headerPages, footerPages, categories, waSettings, tracking] = await Promise.all([
     listPages({ header: true }),
     listPages({ footer: true }),
     listCategories(),
+    getSetting('whatsapp'),
+    getSetting('tracking'),
   ]);
-  const wa = String(site.whatsapp || '').replace(/\D/g, '');
+  const waChat = waSettings.chatButton ? waLink(waSettings.number || site.whatsapp, waSettings.chatMessage || '') : '';
   const year = new Date().getFullYear();
 
   const nav = [
     { href: '/shop', label: 'Shop all' },
-    ...categories.slice(0, 3).map((c: any) => ({ href: `/shop?category=${c.slug}`, label: c.name })),
+    ...categories.slice(0, 3).map((c: any) => ({ href: `/shop?category=${c.slug}`, label: c.name, wide: true })),
     ...headerPages.map((p: any) => ({ href: `/p/${p.slug}`, label: p.title })),
     { href: '/track', label: 'Track order' },
   ];
@@ -54,9 +59,13 @@ export default async function StoreLayout({ children }: { children: React.ReactN
             )}
           </Link>
 
-          <nav className="ml-6 hidden flex-1 items-center gap-1 lg:flex">
-            {nav.map((n) => (
-              <Link key={n.href} href={n.href} className="rounded-full px-3 py-1.5 text-[15px] font-medium text-ink-soft hover:bg-brand-soft hover:text-ink">
+          <nav className="ml-4 hidden flex-1 items-center gap-0.5 lg:flex">
+            {nav.map((n: any) => (
+              <Link
+                key={n.href}
+                href={n.href}
+                className={`${n.wide ? 'hidden xl:block' : ''} whitespace-nowrap rounded-full px-3 py-1.5 text-[15px] font-medium text-ink-soft hover:bg-brand-soft hover:text-ink`}
+              >
                 {n.label}
               </Link>
             ))}
@@ -126,19 +135,8 @@ export default async function StoreLayout({ children }: { children: React.ReactN
         </div>
       </footer>
 
-      {wa && (
-        <a
-          href={`https://wa.me/${wa}`}
-          target="_blank"
-          rel="noreferrer"
-          aria-label="Chat on WhatsApp"
-          className="fixed bottom-5 left-5 z-40 flex h-13 w-13 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg"
-        >
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-            <path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 11.9 11.9 0 0 0 4.6 4c1.7.7 2.4.8 3.2.7.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3Z" />
-          </svg>
-        </a>
-      )}
+      {waChat && <FloatingWhatsApp href={waChat} />}
+      <TrackingScripts tracking={tracking} />
       <AddedToast />
     </CartProvider>
   );

@@ -15,7 +15,6 @@ export const BRAND_FIELDS: Field[] = [
   { name: 'announcementOn', label: 'Show the announcement bar', type: 'toggle' },
   { name: 'announcement', label: 'Announcement text', type: 'text', wide: true },
   { type: 'heading', label: 'Other' },
-  { name: 'whatsapp', label: 'WhatsApp number', type: 'text', placeholder: '919876543210', hint: 'With country code, no spaces. Adds a chat button to every page.' },
   { name: 'orderPrefix', label: 'Order number prefix', type: 'text', hint: 'Up to 4 letters, e.g. HS → HS2610221234' },
   { name: 'showVegMark', label: 'Show the green veg mark on products', type: 'toggle' },
 ];
@@ -124,4 +123,41 @@ export const DELIVERY_FIELDS: Field[] = [
   { name: 'pkgBreadth', label: 'Breadth (cm)', type: 'number' },
   { name: 'pkgHeight', label: 'Height (cm)', type: 'number' },
   { name: 'defaultWeightKg', label: 'Minimum weight (kg)', type: 'number' },
+];
+
+export const WHATSAPP_FIELDS: Field[] = [
+  { type: 'heading', label: 'Your WhatsApp number', hint: 'The number customers will message. Use your WhatsApp Business number if you have one.' },
+  { name: 'number', label: 'WhatsApp number', type: 'text', placeholder: '9876543210', hint: '10-digit Indian mobile number, or with country code for other countries (e.g. 971501234567).' },
+  { type: 'heading', label: 'Chat button' },
+  { name: 'chatButton', label: 'Show the floating WhatsApp button on every page', type: 'toggle' },
+  { name: 'chatMessage', label: 'Pre-filled chat message', type: 'text', wide: true },
+  { type: 'heading', label: 'WhatsApp ordering', hint: 'Let customers order through WhatsApp instead of (or as well as) paying online.' },
+  { name: 'orderingEnabled', label: 'Turn on WhatsApp ordering', type: 'toggle' },
+  { name: 'productButton', label: 'Show “Order on WhatsApp” on product pages', type: 'toggle', hint: 'Opens WhatsApp with the product, size and quantity filled in. No order is saved in the admin.' },
+  { name: 'cartButton', label: 'Show “Order on WhatsApp” in the cart', type: 'toggle', hint: 'Sends the whole cart as a message. No order is saved in the admin.' },
+  { name: 'checkoutOption', label: 'Offer WhatsApp as a payment option at checkout', type: 'toggle', hint: 'Saves the order in your admin panel (with address), then the customer sends it to you on WhatsApp and you confirm payment there.' },
+  { name: 'checkoutLabel', label: 'Checkout option name', type: 'text' },
+  { name: 'checkoutNote', label: 'Checkout option description', type: 'text' },
+  { type: 'heading', label: 'Message templates', hint: 'Placeholders: {items} list of items, {total} amount, {order} order number, {name}, {phone}, {address}, {note}, {product}.' },
+  { name: 'productMessage', label: 'Product page message', type: 'textarea', rows: 4 },
+  { name: 'cartMessage', label: 'Cart message', type: 'textarea', rows: 4 },
+  { name: 'orderMessage', label: 'Message after checkout (includes order number and address)', type: 'textarea', rows: 7 },
+];
+
+export const TRACKING_FIELDS: Field[] = [
+  { type: 'heading', label: 'Meta Pixel (Facebook & Instagram ads)', hint: 'Meta Events Manager → Data sources → your pixel → Settings. Copy the Pixel ID (numbers only).' },
+  { name: 'metaPixelId', label: 'Meta Pixel ID', type: 'text', placeholder: '123456789012345' },
+  { name: 'metaDomainVerification', label: 'Meta domain verification code', type: 'text', placeholder: 'abc123def456…', hint: 'Business settings → Brand safety → Domains → Add → “Meta-tag” option. Paste only the content value.' },
+  { type: 'heading', label: 'Google Analytics 4', hint: 'Analytics → Admin → Data streams → your website. Copy the Measurement ID.' },
+  { name: 'ga4Id', label: 'GA4 Measurement ID', type: 'text', placeholder: 'G-XXXXXXXXXX' },
+  { type: 'heading', label: 'Google Tag Manager', hint: 'Optional. If you manage tags in GTM, paste the container ID. Shop events are pushed to the dataLayer (view_item, add_to_cart, begin_checkout, purchase, whatsapp_click). Don’t add the same GA4 or Pixel in both GTM and here, or visits will be counted twice.' },
+  { name: 'gtmId', label: 'GTM container ID', type: 'text', placeholder: 'GTM-XXXXXXX' },
+  { type: 'heading', label: 'Google Ads', hint: 'Google Ads → Goals → Conversions → your conversion action → Tag setup → “Use Google tag”. The tag shows send_to: AW-123456789/AbCdEf — the first part is the Conversion ID, the part after “/” is the label.' },
+  { name: 'googleAdsId', label: 'Conversion ID', type: 'text', placeholder: 'AW-123456789' },
+  { name: 'googleAdsPurchaseLabel', label: 'Purchase conversion label', type: 'text', placeholder: 'AbCdEfGhIjK', hint: 'Fired when an order is placed, with the order value.' },
+  { name: 'googleAdsCartLabel', label: 'Add-to-cart conversion label (optional)', type: 'text' },
+  { type: 'heading', label: 'Google Search Console', hint: 'Search Console → Add property → URL prefix → your website address → choose “HTML tag”. Paste only the content value, then click Verify in Search Console. After that, submit your sitemap: /sitemap.xml' },
+  { name: 'searchConsoleToken', label: 'Search Console verification code', type: 'text', placeholder: 'abc123-XYZ…' },
+  { type: 'heading', label: 'Shop events' },
+  { name: 'trackEcommerce', label: 'Send shop events (product views, add to cart, checkout, purchase)', type: 'toggle', hint: 'Used for ad optimisation and sales reports in Meta, Google Analytics and Google Ads.' },
 ];

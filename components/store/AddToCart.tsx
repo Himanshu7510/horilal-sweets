@@ -4,10 +4,20 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from './CartContext';
 import { inr } from '@/lib/format';
+import { track } from '@/lib/track';
+import { waLink, fillTemplate, itemLines, rupees } from '@/lib/whatsapp';
+import { WaAnchor } from './WaButton';
+import { WhatsAppIcon } from './WhatsAppIcon';
 
 type V = { label: string; price: number; mrp: number; stock: number };
 
-export function AddToCart({ product }: { product: { id: number; name: string; slug: string; image: string; variants: V[] } }) {
+export function AddToCart({
+  product,
+  wa,
+}: {
+  product: { id: number; name: string; slug: string; image: string; variants: V[] };
+  wa?: { number: string; message: string } | null;
+}) {
   const { add } = useCart();
   const router = useRouter();
   const firstInStock = Math.max(0, product.variants.findIndex((v) => Number(v.stock) > 0));
@@ -16,6 +26,20 @@ export function AddToCart({ product }: { product: { id: number; name: string; sl
   const v = product.variants[vi];
   const out = !v || Number(v.stock) <= 0;
   const off = v && Number(v.mrp) > Number(v.price) ? Math.round(((v.mrp - v.price) / v.mrp) * 100) : 0;
+
+  const addTracked = (it: ReturnType<typeof item>) => {
+    add(it);
+    track('add_to_cart', { items: [{ id: String(it.productId), name: it.name, variant: it.variant, price: it.price, qty: it.qty }] });
+  };
+
+  const waHref =
+    wa && v
+      ? waLink(wa.number, fillTemplate(wa.message, {
+          items: itemLines([{ name: product.name, variant: v.label, qty, price: Number(v.price) }]),
+          total: rupees(Number(v.price) * qty),
+          product: product.name,
+        }))
+      : '';
 
   const item = () => ({
     productId: product.id,
@@ -80,14 +104,14 @@ export function AddToCart({ product }: { product: { id: number; name: string; sl
             aria-label="Increase quantity"
           >+</button>
         </div>
-        <button type="button" disabled={out} onClick={() => add(item())} className="btn btn-brand h-11 px-7">
+        <button type="button" disabled={out} onClick={() => addTracked(item())} className="btn btn-brand h-11 px-7">
           {out ? 'Sold out' : 'Add to cart'}
         </button>
         {!out && (
           <button
             type="button"
             onClick={() => {
-              add(item());
+              addTracked(item());
               router.push('/checkout');
             }}
             className="btn btn-ghost h-11 px-6 text-brand"
@@ -96,6 +120,15 @@ export function AddToCart({ product }: { product: { id: number; name: string; sl
           </button>
         )}
       </div>
+      {waHref && !out && (
+        <WaAnchor
+          href={waHref}
+          placement="product"
+          className="btn mt-3 h-11 bg-[#25D366] px-6 text-white hover:bg-[#1ebe5b]"
+        >
+          <WhatsAppIcon /> Order on WhatsApp
+        </WaAnchor>
+      )}
       {!out && Number(v.stock) <= 5 && <p className="mt-3 text-sm font-semibold text-brand">Only {v.stock} left</p>}
     </div>
   );

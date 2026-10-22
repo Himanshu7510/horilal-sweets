@@ -27,6 +27,8 @@ const GROUPS = [
     items: [
       { href: '/admin/payments', label: 'Payments' },
       { href: '/admin/delivery', label: 'Delivery' },
+      { href: '/admin/whatsapp', label: 'WhatsApp' },
+      { href: '/admin/marketing', label: 'Marketing & tracking' },
       { href: '/admin/account', label: 'Account' },
     ],
   },

@@ -8,6 +8,7 @@ export const metadata = { title: 'Dashboard' };
 
 export default async function Dashboard() {
   const paid = `status NOT IN ('pending_payment','cancelled','returned')`;
+  const [wa, tracking] = await Promise.all([getSetting('whatsapp'), getSetting('tracking')]);
   const [stats, recent, lowStock, site, footer, payment, delivery, paySecrets, kind] = await Promise.all([
     q1(`SELECT
         (SELECT count(*)::int FROM orders WHERE ${paid} AND created_at >= date_trunc('day', now() AT TIME ZONE 'Asia/Kolkata') AT TIME ZONE 'Asia/Kolkata') AS today_orders,
@@ -35,6 +36,8 @@ export default async function Dashboard() {
     { done: !!payment.razorpayKeyId && paySecrets.razorpayKeySecret && payment.razorpayEnabled, label: 'Set up online payments (Razorpay)', href: '/admin/payments' },
     { done: delivery.provider === 'shiprocket' || !!delivery.estimate, label: 'Choose delivery charges and courier', href: '/admin/delivery' },
     { done: !!footer.fssai, label: 'Add your FSSAI licence number', href: '/admin/content?tab=footer' },
+    { done: !!(wa.number || site.whatsapp), label: 'Add your WhatsApp number for orders', href: '/admin/whatsapp' },
+    { done: !!(tracking.metaPixelId || tracking.ga4Id || tracking.gtmId), label: 'Connect Meta Pixel or Google Analytics', href: '/admin/marketing' },
   ];
   const pending = checklist.filter((c) => !c.done);
 

@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import { useCart } from './CartContext';
 import { usePricing } from './CartView';
 import { inr } from '@/lib/format';
+import { track } from '@/lib/track';
+import { WhatsAppIcon } from './WhatsAppIcon';
 
 declare global {
   interface Window {
@@ -26,16 +28,28 @@ function loadRazorpay(): Promise<boolean> {
 
 const SAVED = 'store_checkout_details';
 
-export function CheckoutForm({ states, codNote, estimate }: { states: string[]; codNote: string; estimate: string }) {
+export function CheckoutForm({
+  states,
+  codNote,
+  estimate,
+  waLabel,
+  waNote,
+}: {
+  states: string[];
+  codNote: string;
+  estimate: string;
+  waLabel: string;
+  waNote: string;
+}) {
   const { items, ready, clear } = useCart();
   const router = useRouter();
   const [f, setF] = useState({ name: '', phone: '', email: '', line1: '', line2: '', landmark: '', city: '', state: '', pincode: '', note: '' });
-  const [method, setMethod] = useState<'online' | 'cod'>('online');
+  const [method, setMethod] = useState<'online' | 'cod' | 'whatsapp'>('online');
   const [couponInput, setCouponInput] = useState('');
   const [coupon, setCoupon] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const priced = usePricing(method === 'cod' ? 'cod' : 'online', coupon);
+  const priced = usePricing(method, coupon);
 
   useEffect(() => {
     try {
@@ -48,9 +62,24 @@ export function CheckoutForm({ states, codNote, estimate }: { states: string[]; 
   // Pick an available payment method once pricing loads.
   useEffect(() => {
     if (!priced) return;
-    if (method === 'online' && !priced.onlineAvailable && priced.codAvailable) setMethod('cod');
-    if (method === 'cod' && !priced.codAvailable && priced.onlineAvailable) setMethod('online');
+    const ok = { online: priced.onlineAvailable, cod: priced.codAvailable, whatsapp: priced.whatsappAvailable };
+    if (!ok[method]) {
+      const next = (['online', 'cod', 'whatsapp'] as const).find((m) => ok[m]);
+      if (next) setMethod(next);
+    }
   }, [priced, method]);
+
+  // Report the start of checkout once.
+  const [begun, setBegun] = useState(false);
+  useEffect(() => {
+    if (!ready || begun || !items.length) return;
+    setBegun(true);
+    const t = setTimeout(
+      () => track('begin_checkout', { items: items.map((i) => ({ id: String(i.productId), name: i.name, variant: i.variant, price: i.price, qty: i.qty })) }),
+      800
+    );
+    return () => clearTimeout(t);
+  }, [ready, begun, items]);
 
   const set = (k: string) => (e: any) => setF((x) => ({ ...x, [k]: e.target.value }));
 
@@ -134,7 +163,7 @@ export function CheckoutForm({ states, codNote, estimate }: { states: string[]; 
       </div>
     );
 
-  const noPayment = priced && !priced.onlineAvailable && !priced.codAvailable;
+  const noPayment = priced && !priced.onlineAvailable && !priced.codAvailable && !priced.whatsappAvailable;
 
   return (
     <form onSubmit={submit} className="mt-8 grid gap-10 md:grid-cols-[1fr_360px]">
@@ -216,6 +245,15 @@ export function CheckoutForm({ states, codNote, estimate }: { states: string[]; 
                 </span>
               </label>
             )}
+            {priced?.whatsappAvailable && (
+              <label className={`flex cursor-pointer gap-3 rounded-2xl border-2 bg-white p-4 ${method === 'whatsapp' ? 'border-[#25D366]' : 'border-line'}`}>
+                <input type="radio" name="pm" checked={method === 'whatsapp'} onChange={() => setMethod('whatsapp')} className="mt-1 accent-[#25D366]" />
+                <span>
+                  <span className="flex items-center gap-1.5 font-semibold"><span className="text-[#25D366]"><WhatsAppIcon /></span>{waLabel}</span>
+                  <span className="text-[15px] text-ink-soft">{waNote}</span>
+                </span>
+              </label>
+            )}
             {noPayment && <p className="rounded-xl bg-accent-soft p-3 text-[15px]">Payments aren’t set up yet. Please contact us to place your order.</p>}
           </div>
         </fieldset>
@@ -277,7 +315,7 @@ export function CheckoutForm({ states, codNote, estimate }: { states: string[]; 
           disabled={busy || !priced || priced.errors?.length > 0 || noPayment}
           className="btn btn-brand mt-5 w-full py-3.5 text-base"
         >
-          {busy ? 'Placing order…' : method === 'online' ? `Pay ${priced ? inr(priced.total) : ''}` : 'Place order'}
+          {busy ? 'Placing order…' : method === 'online' ? `Pay ${priced ? inr(priced.total) : ''}` : method === 'whatsapp' ? 'Place order & open WhatsApp' : 'Place order'}
         </button>
         <p className="mt-3 text-center text-sm text-ink-soft">
           By placing this order you agree to our <Link href="/p/terms" className="underline">terms</Link>.

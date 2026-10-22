@@ -1,13 +1,21 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { getSiteBundle } from '@/lib/settings';
+import { getSiteBundle, getSetting } from '@/lib/settings';
 
 export const dynamic = 'force-dynamic';
 
 export async function generateMetadata(): Promise<Metadata> {
   try {
     const { site, seo } = await getSiteBundle();
+    const tracking = await getSetting('tracking');
+    const token = (v: string) => (/^[A-Za-z0-9_-]{10,100}$/.test(v || '') ? v : undefined);
+    const google = token(tracking.searchConsoleToken);
+    const fb = token(tracking.metaDomainVerification);
     return {
+      verification: {
+        ...(google ? { google } : {}),
+        ...(fb ? { other: { 'facebook-domain-verification': fb } } : {}),
+      },
       title: { default: seo.title || site.brandName, template: `%s | ${site.brandName}` },
       description: seo.description,
       keywords: seo.keywords,

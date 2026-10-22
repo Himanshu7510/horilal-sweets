@@ -55,7 +55,11 @@ export async function finalizeOrder(orderId: number, payment?: Record<string, an
   }
   if (order.status === 'pending_payment') {
     await q(`UPDATE orders SET status = 'placed', updated_at = now() WHERE id = $1`, [orderId]);
-    await addTimeline(orderId, 'placed', payment ? 'Payment received online' : 'Cash on delivery order');
+    await addTimeline(
+      orderId,
+      'placed',
+      payment ? 'Payment received' : order.payment_method === 'whatsapp' ? 'Ordered via WhatsApp — confirm and collect payment' : 'Cash on delivery order'
+    );
   }
   // Apply stock exactly once.
   const claimed = await q(`UPDATE orders SET stock_applied = true WHERE id = $1 AND NOT stock_applied RETURNING id`, [orderId]);

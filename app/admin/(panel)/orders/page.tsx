@@ -91,7 +91,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
                 </td>
                 <td className="px-3 py-3 text-gray-700">{(o.items || []).reduce((s: number, i: any) => s + i.qty, 0)} items</td>
                 <td className="px-3 py-3">
-                  <Badge value={o.payment_status} label={o.payment_method === 'cod' ? (o.payment_status === 'paid' ? 'COD · paid' : 'COD') : o.payment_status === 'paid' ? 'Paid online' : o.payment_status} />
+                  <Badge value={o.payment_status} label={o.payment_method === 'razorpay' ? (o.payment_status === 'paid' ? 'Paid online' : o.payment_status) : `${o.payment_method === 'cod' ? 'COD' : 'WhatsApp'}${o.payment_status === 'paid' ? ' · paid' : ''}`} />
                 </td>
                 <td className="px-3 py-3"><Badge value={o.status} /></td>
                 <td className="px-4 py-3 text-right font-semibold">{inr(o.total)}</td>

@@ -2,6 +2,7 @@
 import { q, q1 } from './db';
 import { getSetting } from './settings';
 import { pincodeList } from './format';
+import { publicWaConfig } from './whatsapp';
 
 export type CartInput = { productId: number; variantIndex: number; qty: number }[];
 
@@ -84,6 +85,7 @@ export async function priceCart(input: CartInput, opts: { coupon?: string; payme
   const subtotal = lines.reduce((s, l) => s + l.lineTotal, 0);
   const delivery = await getSetting('delivery');
   const payment = await getSetting('payment');
+  const wa = publicWaConfig(await getSetting('whatsapp'), await getSetting('site'));
 
   let discount = 0;
   let couponCode = '';
@@ -126,5 +128,6 @@ export async function priceCart(input: CartInput, opts: { coupon?: string; payme
     freeAbove: Number(delivery.freeAbove || 0),
     codAvailable: !!payment.codEnabled && (!Number(payment.codMaxOrder) || total <= Number(payment.codMaxOrder)),
     onlineAvailable: !!payment.razorpayEnabled && !!payment.razorpayKeyId,
+    whatsappAvailable: wa.checkout,
   };
 }

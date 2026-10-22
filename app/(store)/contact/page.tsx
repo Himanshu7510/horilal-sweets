@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { q } from '@/lib/db';
 import { getSetting } from '@/lib/settings';
+import { waLink } from '@/lib/whatsapp';
 
 export const metadata: Metadata = { title: 'Contact us' };
 
@@ -17,8 +18,8 @@ async function send(formData: FormData) {
 
 export default async function ContactPage({ searchParams }: { searchParams: Promise<{ sent?: string; error?: string }> }) {
   const { sent, error } = await searchParams;
-  const [footer, site] = await Promise.all([getSetting('footer'), getSetting('site')]);
-  const wa = String(site.whatsapp || '').replace(/\D/g, '');
+  const [footer, site, waSettings] = await Promise.all([getSetting('footer'), getSetting('site'), getSetting('whatsapp')]);
+  const wa = waLink(waSettings.number || site.whatsapp, waSettings.chatMessage || '');
   return (
     <div className="mx-auto grid max-w-5xl gap-12 px-4 pt-12 sm:px-6 md:grid-cols-[1fr_1.2fr]">
       <div>
@@ -26,7 +27,7 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
         <p className="mt-3 text-ink-soft">Questions about an order, bulk or corporate gifting? We usually reply within a day.</p>
         <dl className="mt-8 space-y-5 text-[16px]">
           {footer.phone && <div><dt className="font-semibold">Phone</dt><dd><a className="text-brand" href={`tel:${footer.phone}`}>{footer.phone}</a></dd></div>}
-          {wa && <div><dt className="font-semibold">WhatsApp</dt><dd><a className="text-brand" href={`https://wa.me/${wa}`} target="_blank" rel="noreferrer">Chat with us</a></dd></div>}
+          {wa && <div><dt className="font-semibold">WhatsApp</dt><dd><a className="text-brand" href={wa} target="_blank" rel="noreferrer">Chat with us</a></dd></div>}
           {footer.email && <div><dt className="font-semibold">Email</dt><dd><a className="text-brand" href={`mailto:${footer.email}`}>{footer.email}</a></dd></div>}
           {footer.address && <div><dt className="font-semibold">Address</dt><dd className="whitespace-pre-line text-ink-soft">{footer.address}</dd></div>}
           {footer.hours && <div><dt className="font-semibold">Hours</dt><dd className="text-ink-soft">{footer.hours}</dd></div>}

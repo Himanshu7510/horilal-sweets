@@ -73,6 +73,32 @@ export const DEFAULT_SETTINGS: Record<string, any> = {
     ogImage: '',
     keywords: 'indian sweets online, mithai, kaju katli, ladoo, gift box',
   },
+  whatsapp: {
+    number: '',
+    chatButton: true,
+    chatMessage: 'Hi! I have a question about your sweets.',
+    orderingEnabled: true,
+    productButton: true,
+    cartButton: true,
+    checkoutOption: true,
+    checkoutLabel: 'Order on WhatsApp',
+    checkoutNote: 'We’ll confirm your order and share payment details on WhatsApp.',
+    productMessage: 'Hi! I’d like to order:\n{items}\n\nPlease share availability and delivery details.',
+    cartMessage: 'Hi! I’d like to order:\n{items}\n\nSubtotal: {total}\nPlease confirm availability and delivery charges.',
+    orderMessage:
+      'Hi! I’ve placed order {order} on your website.\n\n{items}\n\nTotal: {total}\nName: {name}\nPhone: {phone}\nAddress: {address}\n\nPlease confirm my order.',
+  },
+  tracking: {
+    metaPixelId: '',
+    metaDomainVerification: '',
+    ga4Id: '',
+    gtmId: '',
+    googleAdsId: '',
+    googleAdsPurchaseLabel: '',
+    googleAdsCartLabel: '',
+    searchConsoleToken: '',
+    trackEcommerce: true,
+  },
   payment: {
     razorpayEnabled: false,
     razorpayKeyId: '',
@@ -126,3 +152,6 @@ export const ORDER_STATUSES = [
 ];
 
 export const statusLabel = (s: string) => ORDER_STATUSES.find((x) => x.value === s)?.label ?? s;
+
+export const paymentMethodLabel = (m: string) =>
+  m === 'cod' ? 'Cash on delivery' : m === 'whatsapp' ? 'WhatsApp order' : 'Online (Razorpay)';
