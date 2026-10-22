@@ -16,7 +16,7 @@ export const BRAND_FIELDS: Field[] = [
   { name: 'announcement', label: 'Announcement text', type: 'text', wide: true },
   { type: 'heading', label: 'Other' },
   { name: 'whatsapp', label: 'WhatsApp number', type: 'text', placeholder: '919876543210', hint: 'With country code, no spaces. Adds a chat button to every page.' },
-  { name: 'orderPrefix', label: 'Order number prefix', type: 'text', hint: 'Up to 4 letters, e.g. MT → MT2610221234' },
+  { name: 'orderPrefix', label: 'Order number prefix', type: 'text', hint: 'Up to 4 letters, e.g. HS → HS2610221234' },
   { name: 'showVegMark', label: 'Show the green veg mark on products', type: 'toggle' },
 ];
 

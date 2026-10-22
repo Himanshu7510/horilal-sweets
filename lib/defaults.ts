@@ -3,7 +3,7 @@
 
 export const DEFAULT_SETTINGS: Record<string, any> = {
   site: {
-    brandName: 'Mithaas',
+    brandName: 'Horilal Sweets',
     tagline: 'Handmade Indian sweets, made fresh every morning',
     logo: '',
     favicon: '',
@@ -15,7 +15,7 @@ export const DEFAULT_SETTINGS: Record<string, any> = {
     announcement: 'Free delivery on orders above ₹999 · Fresh batches packed the same day',
     whatsapp: '',
     showVegMark: true,
-    orderPrefix: 'MT',
+    orderPrefix: 'HS',
   },
   home: {
     heroTitle: 'Mithai the way it was made at home',
@@ -67,7 +67,7 @@ export const DEFAULT_SETTINGS: Record<string, any> = {
     copyright: '',
   },
   seo: {
-    title: 'Mithaas — Handmade Indian Sweets Online',
+    title: 'Horilal Sweets — Handmade Indian Sweets Online',
     description:
       'Order fresh, handmade Indian sweets, ladoos, barfi, kaju katli and festive gift boxes online. Pure desi ghee, delivered across India.',
     ogImage: '',

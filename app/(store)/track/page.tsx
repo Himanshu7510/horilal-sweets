@@ -23,7 +23,7 @@ export default async function TrackPage({ searchParams }: { searchParams: Promis
       <form action={lookup} className="mt-8 space-y-4">
         <label className="block">
           <span className="mb-1 block font-medium">Order number</span>
-          <input name="number" required className="field uppercase" placeholder="e.g. MT2610221234" />
+          <input name="number" required className="field uppercase" placeholder="e.g. HS2610221234" />
         </label>
         <label className="block">
           <span className="mb-1 block font-medium">Mobile number</span>

@@ -30,7 +30,7 @@ export default async function Dashboard() {
 
   const checklist = [
     { done: kind === 'postgres', label: 'Connect a permanent database', href: null, hint: 'Vercel → your project → Storage → Neon Postgres' },
-    { done: !!site.logo || site.brandName !== 'Mithaas', label: 'Add your brand name and logo', href: '/admin/content?tab=brand' },
+    { done: !!site.logo || site.brandName !== 'Horilal Sweets', label: 'Add your brand name and logo', href: '/admin/content?tab=brand' },
     { done: !!footer.phone && !!footer.address, label: 'Add your address and phone number', href: '/admin/content?tab=footer' },
     { done: !!payment.razorpayKeyId && paySecrets.razorpayKeySecret && payment.razorpayEnabled, label: 'Set up online payments (Razorpay)', href: '/admin/payments' },
     { done: delivery.provider === 'shiprocket' || !!delivery.estimate, label: 'Choose delivery charges and courier', href: '/admin/delivery' },

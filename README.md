@@ -1,4 +1,4 @@
-# Sweets store
+# Horilal Sweets — online store
 
 An online store for an Indian sweets brand, with a full admin panel. Built with Next.js and deployed on Vercel.
 
