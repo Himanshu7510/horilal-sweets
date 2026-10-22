@@ -1,0 +1,157 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-brand: var(--brand);
+  --color-brand-dark: color-mix(in oklab, var(--brand) 80%, black);
+  --color-brand-soft: color-mix(in oklab, var(--brand) 12%, white);
+  --color-accent: var(--accent);
+  --color-accent-soft: color-mix(in oklab, var(--accent) 18%, white);
+  --color-ink: var(--ink);
+  --color-ink-soft: color-mix(in oklab, var(--ink) 68%, white);
+  --color-paper: var(--paper);
+  --color-line: color-mix(in oklab, var(--ink) 12%, white);
+  --color-pista: #7FA845;
+  --font-display: "Rozha One", Georgia, serif;
+  --font-sans: "Mukta", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+:root {
+  --brand: #A3174F;
+  --accent: #E39B26;
+  --ink: #2B1534;
+  --paper: #FCF7F8;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 1.55;
+}
+
+.font-display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.005em;
+  line-height: 1.08;
+}
+
+:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Scalloped edge — like the paper doily under a box of mithai */
+.scallop-bottom {
+  --s: 13px;
+  -webkit-mask: radial-gradient(var(--s) at 50% 100%, #0000 calc(100% - 1px), #000) 50% / calc(var(--s) * 2) 100% repeat-x;
+  mask: radial-gradient(var(--s) at 50% 100%, #0000 calc(100% - 1px), #000) 50% / calc(var(--s) * 2) 100% repeat-x;
+}
+
+.doily {
+  background-image: radial-gradient(circle at center, color-mix(in oklab, var(--brand) 9%, transparent) 2px, transparent 2.5px);
+  background-size: 18px 18px;
+}
+
+/* Rich text for policy pages and product descriptions */
+.prose-store h2 {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  margin: 1.8em 0 0.5em;
+  line-height: 1.15;
+}
+.prose-store h3 {
+  font-weight: 700;
+  font-size: 1.15rem;
+  margin: 1.5em 0 0.4em;
+}
+.prose-store p {
+  margin: 0 0 1em;
+}
+.prose-store ul,
+.prose-store ol {
+  margin: 0 0 1em 1.3em;
+}
+.prose-store ul {
+  list-style: disc;
+}
+.prose-store ol {
+  list-style: decimal;
+}
+.prose-store li {
+  margin: 0.25em 0;
+}
+.prose-store a {
+  color: var(--brand);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.prose-store strong {
+  font-weight: 700;
+}
+
+/* Admin form controls */
+.field {
+  display: block;
+  width: 100%;
+  border: 1px solid #d9d3dc;
+  background: #fff;
+  border-radius: 8px;
+  padding: 0.55rem 0.75rem;
+  font-size: 15px;
+  line-height: 1.4;
+  color: #221a26;
+}
+.field:focus {
+  outline: 2px solid var(--brand);
+  outline-offset: 0;
+  border-color: transparent;
+}
+textarea.field {
+  min-height: 90px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border-radius: 999px;
+  padding: 0.65rem 1.3rem;
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1.2;
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+  cursor: pointer;
+}
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.btn-brand {
+  background: var(--brand);
+  color: #fff;
+}
+.btn-brand:hover:not(:disabled) {
+  background: color-mix(in oklab, var(--brand) 82%, black);
+}
+.btn-ghost {
+  border: 1.5px solid currentColor;
+}
+.btn-ghost:hover:not(:disabled) {
+  background: color-mix(in oklab, currentColor 8%, transparent);
+}

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600">
+<rect width="600" height="600" fill="#F4D2DE"/>
+<ellipse cx="300" cy="500" rx="200" ry="26" fill="rgba(43,21,52,0.14)"/>
+<rect x="120" y="250" width="360" height="245" rx="10" fill="#A3174F"/>
+<rect x="120" y="250" width="360" height="245" rx="10" fill="url(#pat)" opacity="0.25"/>
+<rect x="105" y="205" width="390" height="70" rx="10" fill="#C22462"/>
+<rect x="272" y="205" width="56" height="290" fill="#E39B26"/>
+<rect x="105" y="232" width="390" height="18" fill="#E39B26" opacity="0"/>
+<path d="M300 205 C250 120 170 140 210 195 C230 220 280 210 300 205Z" fill="#E39B26"/>
+<path d="M300 205 C350 120 430 140 390 195 C370 220 320 210 300 205Z" fill="#F2B544"/>
+<circle cx="300" cy="203" r="20" fill="#C9831A"/>
+<defs><pattern id="pat" width="40" height="40" patternUnits="userSpaceOnUse"><circle cx="20" cy="20" r="6" fill="#FFFFFF"/><circle cx="0" cy="0" r="3" fill="#FFFFFF"/><circle cx="40" cy="40" r="3" fill="#FFFFFF"/></pattern></defs>
+</svg>
