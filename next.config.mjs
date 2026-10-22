@@ -5,6 +5,7 @@ const nextConfig = {
     '/**': ['./node_modules/@electric-sql/pglite/dist/**/*'],
   },
   images: { unoptimized: true },
+  agentRules: false,
   experimental: {
     serverActions: { bodySizeLimit: '8mb' },
   },
