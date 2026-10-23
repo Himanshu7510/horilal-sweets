@@ -3,10 +3,14 @@ import { getSiteBundle } from '@/lib/settings';
 import { listCategories, listProducts } from '@/lib/catalog';
 import { ProductCard } from '@/components/store/ProductCard';
 import { paragraphs } from '@/lib/markdown';
+import { getSetting } from '@/lib/settings';
+import { publicWaConfig } from '@/lib/whatsapp';
+import { WhatsAppIcon } from '@/components/store/WhatsAppIcon';
 
 export default async function HomePage() {
   const { home, site } = await getSiteBundle();
-  const [categories, featured] = await Promise.all([listCategories(), listProducts({ featured: true })]);
+  const [categories, featured, waSettings] = await Promise.all([listCategories(), listProducts({ featured: true }), getSetting('whatsapp')]);
+  const wa = publicWaConfig(waSettings, site);
   const boxItems = featured.filter((p) => p.images?.[0]).slice(0, 6);
   const features = (home.features || []).filter((f: any) => f?.title);
   const testimonials = (home.testimonials || []).filter((t: any) => t?.text);
@@ -31,6 +35,11 @@ export default async function HomePage() {
                 </Link>
               )}
             </div>
+            {wa.ordering && (
+              <Link href="/whatsapp-order" className="mt-5 inline-flex items-center gap-2 font-semibold text-[#14532d] underline-offset-4 hover:underline">
+                <span className="text-[#25D366]"><WhatsAppIcon size={20} /></span> Prefer WhatsApp? Order in a few taps
+              </Link>
+            )}
           </div>
 
           {home.heroImage ? (

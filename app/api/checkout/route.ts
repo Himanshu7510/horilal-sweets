@@ -4,6 +4,7 @@ import { priceCart, checkPincode } from '@/lib/pricing';
 import { getSetting } from '@/lib/settings';
 import { createRazorpayOrder } from '@/lib/razorpay';
 import { finalizeOrder, newOrderNumber, orderToken, addTimeline } from '@/lib/orders';
+import { orderWhatsAppUrl, requestOrigin } from '@/lib/whatsappOrder';
 
 const clean = (s: any, n = 200) => String(s ?? '').trim().slice(0, n);
 
@@ -22,6 +23,7 @@ export async function POST(req: Request) {
     city: clean(a.city, 80),
     state: clean(a.state, 80),
     pincode: clean(a.pincode, 6),
+    ...(/^\d{4}-\d{2}-\d{2}$/.test(String(a.deliveryDate || '')) ? { deliveryDate: String(a.deliveryDate) } : {}),
   };
 
   const missing: string[] = [];
@@ -66,8 +68,13 @@ export async function POST(req: Request) {
   const token = await orderToken(orderNumber);
 
   if (paymentMethod === 'cod' || paymentMethod === 'whatsapp') {
-    await finalizeOrder(order.id);
-    return NextResponse.json({ orderNumber, redirect: `/order/${orderNumber}?t=${token}${paymentMethod === 'whatsapp' ? '&wa=1' : ''}` });
+    const saved = await finalizeOrder(order.id);
+    const redirect = `/order/${orderNumber}?t=${token}${paymentMethod === 'whatsapp' ? '&wa=1' : ''}`;
+    if (paymentMethod === 'whatsapp') {
+      const whatsappUrl = await orderWhatsAppUrl(saved || order, requestOrigin(req.headers));
+      return NextResponse.json({ orderNumber, redirect, whatsappUrl, total: priced.total });
+    }
+    return NextResponse.json({ orderNumber, redirect });
   }
 
   try {

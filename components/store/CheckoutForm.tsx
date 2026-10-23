@@ -62,7 +62,7 @@ export function CheckoutForm({
   // Pick an available payment method once pricing loads.
   useEffect(() => {
     if (!priced) return;
-    const ok = { online: priced.onlineAvailable, cod: priced.codAvailable, whatsapp: priced.whatsappAvailable };
+    const ok = { online: priced.onlineAvailable, cod: priced.codAvailable, whatsapp: priced.whatsappAtCheckout };
     if (!ok[method]) {
       const next = (['online', 'cod', 'whatsapp'] as const).find((m) => ok[m]);
       if (next) setMethod(next);
@@ -163,7 +163,7 @@ export function CheckoutForm({
       </div>
     );
 
-  const noPayment = priced && !priced.onlineAvailable && !priced.codAvailable && !priced.whatsappAvailable;
+  const noPayment = priced && !priced.onlineAvailable && !priced.codAvailable && !priced.whatsappAtCheckout;
 
   return (
     <form onSubmit={submit} className="mt-8 grid gap-10 md:grid-cols-[1fr_360px]">
@@ -245,7 +245,7 @@ export function CheckoutForm({
                 </span>
               </label>
             )}
-            {priced?.whatsappAvailable && (
+            {priced?.whatsappAtCheckout && (
               <label className={`flex cursor-pointer gap-3 rounded-2xl border-2 bg-white p-4 ${method === 'whatsapp' ? 'border-[#25D366]' : 'border-line'}`}>
                 <input type="radio" name="pm" checked={method === 'whatsapp'} onChange={() => setMethod('whatsapp')} className="mt-1 accent-[#25D366]" />
                 <span>

@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { q1 } from '@/lib/db';
 import { getSetting } from '@/lib/settings';
 import { inr, fmtDate } from '@/lib/format';
+import { fmtDeliveryDate } from '@/lib/whatsappOrder';
 import { ORDER_STATUSES, paymentMethodLabel } from '@/lib/defaults';
 import { Badge, Card, PageHeader, btnLight } from '@/components/admin/Page';
 import { StatusForm, NoteForm, ManualShipping, ShiprocketPanel, PaymentActions } from './OrderActions';
@@ -120,6 +121,9 @@ export default async function OrderDetail({ params }: { params: Promise<{ id: st
                 {o.address.landmark && <>Near {o.address.landmark}<br /></>}
                 {o.address.city}, {o.address.state} – {o.address.pincode}
               </p>
+              {o.address.deliveryDate && (
+                <p className="mt-2 rounded-md bg-amber-50 px-2 py-1 text-sm font-semibold text-amber-900">Wanted on {fmtDeliveryDate(o.address.deliveryDate)}</p>
+              )}
             </div>
           </Card>
 

@@ -5,8 +5,8 @@ import { getOrderByNumber, orderToken } from '@/lib/orders';
 import { safeEqual } from '@/lib/crypto';
 import { fmtDate, inr } from '@/lib/format';
 import { statusLabel } from '@/lib/defaults';
-import { getSetting } from '@/lib/settings';
-import { waLink, fillTemplate, itemLines, rupees } from '@/lib/whatsapp';
+import { headers } from 'next/headers';
+import { orderWhatsAppUrl, requestOrigin, fmtDeliveryDate } from '@/lib/whatsappOrder';
 import { WhatsAppIcon } from '@/components/store/WhatsAppIcon';
 import { PurchaseTracker } from '@/components/store/PurchaseTracker';
 
@@ -32,20 +32,7 @@ export default async function OrderPage({
 
   let waUrl = '';
   if (order.payment_method === 'whatsapp' && !closed) {
-    const [wa, site] = await Promise.all([getSetting('whatsapp'), getSetting('site')]);
-    const a = order.address || {};
-    waUrl = waLink(
-      wa.number || site.whatsapp,
-      fillTemplate(wa.orderMessage, {
-        order: order.order_number,
-        items: itemLines(order.items || []),
-        total: rupees(order.total),
-        name: order.customer?.name || '',
-        phone: order.customer?.phone || '',
-        address: [a.line1, a.line2, a.landmark, a.city, a.state, a.pincode].filter(Boolean).join(', '),
-        note: order.note || '',
-      })
-    );
+    waUrl = await orderWhatsAppUrl(order, requestOrigin(await headers()));
   }
 
   return (
@@ -155,6 +142,7 @@ export default async function OrderPage({
             {order.address.city}, {order.address.state} {order.address.pincode}<br />
             {order.customer.phone}
           </p>
+          {order.address.deliveryDate && <p className="mt-1 font-medium">Delivery date: {fmtDeliveryDate(order.address.deliveryDate)}</p>}
         </div>
         <div>
           <div className="font-semibold">Placed on</div>

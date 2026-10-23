@@ -5,18 +5,17 @@ import { useRouter } from 'next/navigation';
 import { useCart } from './CartContext';
 import { inr } from '@/lib/format';
 import { track } from '@/lib/track';
-import { waLink, fillTemplate, itemLines, rupees } from '@/lib/whatsapp';
-import { WaAnchor } from './WaButton';
+import Link from 'next/link';
 import { WhatsAppIcon } from './WhatsAppIcon';
 
 type V = { label: string; price: number; mrp: number; stock: number };
 
 export function AddToCart({
   product,
-  wa,
+  waOrder,
 }: {
   product: { id: number; name: string; slug: string; image: string; variants: V[] };
-  wa?: { number: string; message: string } | null;
+  waOrder?: boolean;
 }) {
   const { add } = useCart();
   const router = useRouter();
@@ -32,14 +31,8 @@ export function AddToCart({
     track('add_to_cart', { items: [{ id: String(it.productId), name: it.name, variant: it.variant, price: it.price, qty: it.qty }] });
   };
 
-  const waHref =
-    wa && v
-      ? waLink(wa.number, fillTemplate(wa.message, {
-          items: itemLines([{ name: product.name, variant: v.label, qty, price: Number(v.price) }]),
-          total: rupees(Number(v.price) * qty),
-          product: product.name,
-        }))
-      : '';
+  // Opens the guided WhatsApp order form with this sweet already selected.
+  const waHref = waOrder && v ? `/whatsapp-order?add=${product.id}:${vi}:${qty}` : '';
 
   const item = () => ({
     productId: product.id,
@@ -121,13 +114,9 @@ export function AddToCart({
         )}
       </div>
       {waHref && !out && (
-        <WaAnchor
-          href={waHref}
-          placement="product"
-          className="btn mt-3 h-11 bg-[#25D366] px-6 text-white hover:bg-[#1ebe5b]"
-        >
+        <Link href={waHref} className="btn mt-3 h-11 bg-[#25D366] px-6 text-white hover:bg-[#1ebe5b]">
           <WhatsAppIcon /> Order on WhatsApp
-        </WaAnchor>
+        </Link>
       )}
       {!out && Number(v.stock) <= 5 && <p className="mt-3 text-sm font-semibold text-brand">Only {v.stock} left</p>}
     </div>

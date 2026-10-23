@@ -56,7 +56,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
           <AddToCart
             product={{ id: p.id, name: p.name, slug: p.slug, image: p.images?.[0] || '', variants: p.variants || [] }}
-            wa={wa.product ? { number: wa.number, message: wa.productMessage } : null}
+            waOrder={wa.product}
           />
           {v0 && <ViewItemTracker item={{ id: String(p.id), name: p.name, variant: v0.label, price: Number(v0.price), qty: 1 }} />}
 

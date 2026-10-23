@@ -27,13 +27,12 @@ export function itemLines(items: { name: string; variant: string; qty: number; p
 export type WaConfig = {
   number: string;
   ordering: boolean;
+  headerLink: boolean;
   product: boolean;
   cart: boolean;
   checkout: boolean;
   checkoutLabel: string;
   checkoutNote: string;
-  productMessage: string;
-  cartMessage: string;
 };
 
 export function publicWaConfig(wa: any, site: any): WaConfig {
@@ -42,12 +41,11 @@ export function publicWaConfig(wa: any, site: any): WaConfig {
   return {
     number,
     ordering,
+    headerLink: ordering && wa.headerLink !== false,
     product: ordering && !!wa.productButton,
     cart: ordering && !!wa.cartButton,
     checkout: ordering && !!wa.checkoutOption,
     checkoutLabel: wa.checkoutLabel || 'Order on WhatsApp',
     checkoutNote: wa.checkoutNote || '',
-    productMessage: wa.productMessage || '',
-    cartMessage: wa.cartMessage || '',
   };
 }

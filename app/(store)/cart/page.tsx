@@ -10,7 +10,7 @@ export default async function CartPage() {
   return (
     <div className="mx-auto max-w-5xl px-4 pt-10 sm:px-6">
       <h1 className="font-display text-4xl sm:text-5xl">Your cart</h1>
-      <CartView wa={wa.cart ? { number: wa.number, message: wa.cartMessage } : null} />
+      <CartView waOrder={wa.cart} />
     </div>
   );
 }

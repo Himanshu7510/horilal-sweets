@@ -35,7 +35,7 @@ export function AddedToast() {
   return (
     <div
       role="status"
-      className="fixed inset-x-4 bottom-4 z-50 mx-auto flex max-w-md items-center gap-3 rounded-2xl bg-ink p-3 pr-4 text-white shadow-xl sm:right-6 sm:left-auto sm:mx-0"
+      className="fixed inset-x-4 bottom-24 z-50 mx-auto flex max-w-md items-center gap-3 rounded-2xl bg-ink p-3 pr-4 text-white shadow-xl sm:right-6 sm:left-auto sm:mx-0"
     >
       {lastAdded.image && <img src={lastAdded.image} alt="" className="h-12 w-12 rounded-lg object-cover" />}
       <div className="min-w-0 flex-1 text-sm leading-snug">

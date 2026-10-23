@@ -128,6 +128,7 @@ export async function priceCart(input: CartInput, opts: { coupon?: string; payme
     freeAbove: Number(delivery.freeAbove || 0),
     codAvailable: !!payment.codEnabled && (!Number(payment.codMaxOrder) || total <= Number(payment.codMaxOrder)),
     onlineAvailable: !!payment.razorpayEnabled && !!payment.razorpayKeyId,
-    whatsappAvailable: wa.checkout,
+    whatsappAvailable: wa.ordering,
+    whatsappAtCheckout: wa.checkout,
   };
 }

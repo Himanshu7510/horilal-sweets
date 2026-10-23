@@ -4,7 +4,8 @@ import { AddedToast, CartButton } from '@/components/store/CartButton';
 import { getSiteBundle, getSetting } from '@/lib/settings';
 import { TrackingScripts } from '@/components/store/TrackingScripts';
 import { FloatingWhatsApp } from '@/components/store/WaButton';
-import { waLink } from '@/lib/whatsapp';
+import { waLink, publicWaConfig } from '@/lib/whatsapp';
+import { WhatsAppIcon } from '@/components/store/WhatsAppIcon';
 import { listCategories, listPages } from '@/lib/catalog';
 
 export default async function StoreLayout({ children }: { children: React.ReactNode }) {
@@ -16,7 +17,9 @@ export default async function StoreLayout({ children }: { children: React.ReactN
     getSetting('whatsapp'),
     getSetting('tracking'),
   ]);
+  const wa = publicWaConfig(waSettings, site);
   const waChat = waSettings.chatButton ? waLink(waSettings.number || site.whatsapp, waSettings.chatMessage || '') : '';
+  const waOrder = wa.ordering ? '/whatsapp-order' : '';
   const year = new Date().getFullYear();
 
   const nav = [
@@ -48,6 +51,11 @@ export default async function StoreLayout({ children }: { children: React.ReactN
               <Link href="/contact" className="block rounded-lg px-3 py-2 hover:bg-brand-soft">
                 Contact
               </Link>
+              {waOrder && wa.headerLink && (
+                <Link href={waOrder} className="mt-1 flex items-center gap-2 rounded-lg bg-[#E7F8EE] px-3 py-2 font-semibold text-[#14532d]">
+                  <span className="text-[#25D366]"><WhatsAppIcon /></span> Order on WhatsApp
+                </Link>
+              )}
             </nav>
           </details>
 
@@ -81,6 +89,14 @@ export default async function StoreLayout({ children }: { children: React.ReactN
                 className="w-40 rounded-full border border-line bg-white px-4 py-2 text-[15px] focus:w-56 focus:outline-brand md:w-48"
               />
             </form>
+            {waOrder && wa.headerLink && (
+              <Link
+                href={waOrder}
+                className="hidden items-center gap-1.5 whitespace-nowrap rounded-full border-2 border-[#25D366] px-3.5 py-1.5 text-[15px] font-semibold text-[#14532d] hover:bg-[#E7F8EE] md:inline-flex"
+              >
+                <span className="text-[#25D366]"><WhatsAppIcon /></span> Order on WhatsApp
+              </Link>
+            )}
             <CartButton />
           </div>
         </div>
@@ -89,11 +105,11 @@ export default async function StoreLayout({ children }: { children: React.ReactN
       <main className="min-h-[60vh]">{children}</main>
 
       <footer className="mt-20 bg-ink text-white/80">
-        <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr_1.2fr]">
+        <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 text-center sm:px-6 md:grid-cols-[1.4fr_1fr_1fr_1.2fr] md:text-left">
           <div>
             <div className="font-display text-3xl text-white">{site.brandName}</div>
-            <p className="mt-3 max-w-xs text-[15px] leading-relaxed">{footer.about}</p>
-            <div className="mt-5 flex gap-3 text-sm">
+            <p className="mx-auto mt-3 max-w-xs text-[15px] leading-relaxed md:mx-0">{footer.about}</p>
+            <div className="mt-5 flex justify-center gap-3 text-sm md:justify-start">
               {footer.instagram && <a className="underline-offset-4 hover:underline" href={footer.instagram} target="_blank" rel="noreferrer">Instagram</a>}
               {footer.facebook && <a className="underline-offset-4 hover:underline" href={footer.facebook} target="_blank" rel="noreferrer">Facebook</a>}
               {footer.youtube && <a className="underline-offset-4 hover:underline" href={footer.youtube} target="_blank" rel="noreferrer">YouTube</a>}
@@ -127,7 +143,7 @@ export default async function StoreLayout({ children }: { children: React.ReactN
           </div>
         </div>
         <div className="border-t border-white/10">
-          <div className="mx-auto flex max-w-6xl flex-wrap gap-x-6 gap-y-1 px-4 py-5 text-sm text-white/55 sm:px-6">
+          <div className="mx-auto flex max-w-6xl flex-wrap justify-center gap-x-6 gap-y-1 px-4 py-5 text-center text-sm text-white/55 sm:px-6 md:justify-start md:text-left">
             <span>{footer.copyright || `© ${year} ${site.brandName}`}</span>
             {footer.fssai && <span>FSSAI Lic. No. {footer.fssai}</span>}
             {footer.gstin && <span>GSTIN {footer.gstin}</span>}
@@ -135,7 +151,7 @@ export default async function StoreLayout({ children }: { children: React.ReactN
         </div>
       </footer>
 
-      {waChat && <FloatingWhatsApp href={waChat} />}
+      {(waChat || waOrder) && <FloatingWhatsApp chatHref={waChat} orderHref={waOrder} />}
       <TrackingScripts tracking={tracking} />
       <AddedToast />
     </CartProvider>

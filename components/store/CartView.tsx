@@ -4,8 +4,6 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useCart } from './CartContext';
 import { inr } from '@/lib/format';
-import { waLink, fillTemplate, itemLines, rupees } from '@/lib/whatsapp';
-import { WaAnchor } from './WaButton';
 import { WhatsAppIcon } from './WhatsAppIcon';
 
 export function usePricing(paymentMethod?: string, coupon?: string) {
@@ -31,7 +29,7 @@ export function usePricing(paymentMethod?: string, coupon?: string) {
   return priced;
 }
 
-export function CartView({ wa }: { wa?: { number: string; message: string } | null }) {
+export function CartView({ waOrder }: { waOrder?: boolean }) {
   const { items, ready, setQty, remove } = useCart();
   const priced = usePricing();
 
@@ -45,12 +43,6 @@ export function CartView({ wa }: { wa?: { number: string; message: string } | nu
       </div>
     );
 
-  const waHref = wa
-    ? waLink(wa.number, fillTemplate(wa.message, {
-        items: itemLines(items),
-        total: rupees(items.reduce((s, i) => s + i.price * i.qty, 0)),
-      }))
-    : '';
   const remaining = priced?.freeAbove ? priced.freeAbove - (priced.subtotal - priced.discount) : 0;
 
   return (
@@ -106,10 +98,14 @@ export function CartView({ wa }: { wa?: { number: string; message: string } | nu
         >
           Continue to checkout
         </Link>
-        {waHref && (
-          <WaAnchor href={waHref} placement="cart" className="btn mt-3 w-full bg-[#25D366] py-3 text-base text-white hover:bg-[#1ebe5b]">
+        {waOrder && (
+          <Link
+            href="/whatsapp-order?from=cart"
+            aria-disabled={!priced || priced.errors?.length > 0}
+            className={`btn mt-3 w-full bg-[#25D366] py-3 text-base text-white hover:bg-[#1ebe5b] ${!priced || priced.errors?.length ? 'pointer-events-none opacity-50' : ''}`}
+          >
             <WhatsAppIcon /> Order on WhatsApp
-          </WaAnchor>
+          </Link>
         )}
         <Link href="/shop" className="mt-3 block text-center text-[15px] text-ink-soft hover:text-brand">Keep shopping</Link>
       </aside>

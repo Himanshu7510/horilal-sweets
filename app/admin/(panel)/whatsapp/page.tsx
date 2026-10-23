@@ -40,12 +40,16 @@ export default async function WhatsAppPage() {
         />
       </div>
       <Card title="How WhatsApp orders work" className="mt-6">
-        <ul className="list-disc space-y-1.5 pl-5 text-sm text-gray-700">
-          <li>When a customer chooses WhatsApp at checkout, the order is saved under <strong>Orders</strong> with a “WhatsApp” label and the stock is reserved.</li>
-          <li>The customer is then shown a button that opens WhatsApp with their order number, items, total and address already typed.</li>
-          <li>Reply to confirm, share your UPI or payment link, then open the order and click <strong>Mark paid</strong> when the money arrives.</li>
-          <li>If the customer never pays, change the order status to <strong>Cancelled</strong> to put the stock back.</li>
-        </ul>
+        <ol className="list-decimal space-y-1.5 pl-5 text-sm text-gray-700">
+          <li>The customer opens the order form (from the menu, a product page, the cart or the WhatsApp button) and picks sweets by category, with size and quantity.</li>
+          <li>They enter their name, mobile number, address, pincode and, if you ask for it, the date they need the sweets.</li>
+          <li>They review the order and tap <strong>Send order on WhatsApp</strong>. The order is saved under <strong>Orders</strong> (labelled “WhatsApp”), stock is reserved, and WhatsApp opens with every detail typed in.</li>
+          <li>Reply to confirm and share your UPI or payment link. When the money arrives, open the order and click <strong>Mark paid</strong>.</li>
+          <li>If the customer never pays, set the order to <strong>Cancelled</strong> to put the stock back.</li>
+        </ol>
+        {cfg.ordering && (
+          <a href="/whatsapp-order" target="_blank" className="mt-4 inline-block text-sm font-semibold text-brand">Open the order form</a>
+        )}
       </Card>
     </>
   );

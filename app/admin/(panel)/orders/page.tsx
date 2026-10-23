@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { q, q1 } from '@/lib/db';
 import { inr, fmtDate } from '@/lib/format';
+import { fmtDeliveryDate } from '@/lib/whatsappOrder';
 import { Badge, PageHeader, btnLight } from '@/components/admin/Page';
 
 export const metadata = { title: 'Orders' };
@@ -88,6 +89,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
                 <td className="px-3 py-3">
                   <div>{o.customer?.name}</div>
                   <div className="text-xs text-gray-500">{o.customer?.phone} · {o.address?.city}</div>
+                  {o.address?.deliveryDate && <div className="text-xs font-semibold text-amber-800">Wanted {fmtDeliveryDate(o.address.deliveryDate)}</div>}
                 </td>
                 <td className="px-3 py-3 text-gray-700">{(o.items || []).reduce((s: number, i: any) => s + i.qty, 0)} items</td>
                 <td className="px-3 py-3">
