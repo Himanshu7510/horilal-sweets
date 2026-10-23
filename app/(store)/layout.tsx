@@ -24,7 +24,12 @@ export default async function StoreLayout({ children }: { children: React.ReactN
 
   const nav = [
     { href: '/shop', label: 'Shop all' },
-    ...categories.slice(0, 3).map((c: any) => ({ href: `/shop?category=${c.slug}`, label: c.name, wide: true })),
+    ...headerPages.map((p: any) => ({ href: `/p/${p.slug}`, label: p.title })),
+    { href: '/track', label: 'Track order' },
+  ];
+  const phoneNav = [
+    { href: '/shop', label: 'Shop all' },
+    ...categories.map((c: any) => ({ href: `/shop?category=${c.slug}`, label: c.name, sub: true })),
     ...headerPages.map((p: any) => ({ href: `/p/${p.slug}`, label: p.title })),
     { href: '/track', label: 'Track order' },
   ];
@@ -35,16 +40,16 @@ export default async function StoreLayout({ children }: { children: React.ReactN
         <div className="bg-ink px-4 py-2 text-center text-sm text-white/90">{site.announcement}</div>
       )}
       <header className="sticky top-0 z-40 border-b border-line bg-paper/95 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3 sm:px-6">
+        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 sm:px-6 lg:gap-4">
           <details className="relative lg:hidden">
             <summary className="flex h-10 w-10 cursor-pointer list-none items-center justify-center rounded-full border border-line" aria-label="Menu">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
                 <path d="M4 7h16M4 12h16M4 17h16" />
               </svg>
             </summary>
-            <nav className="absolute left-0 top-12 z-50 w-64 rounded-2xl border border-line bg-white p-2 shadow-xl">
-              {nav.map((n) => (
-                <Link key={n.href} href={n.href} className="block rounded-lg px-3 py-2 hover:bg-brand-soft">
+            <nav className="absolute left-0 top-12 z-50 max-h-[75vh] w-64 overflow-y-auto rounded-2xl border border-line bg-white p-2 shadow-xl">
+              {phoneNav.map((n: any) => (
+                <Link key={n.href} href={n.href} className={`block rounded-lg py-2 hover:bg-brand-soft ${n.sub ? 'pl-6 pr-3 text-[15px] text-ink-soft' : 'px-3'}`}>
                   {n.label}
                 </Link>
               ))}
@@ -59,42 +64,45 @@ export default async function StoreLayout({ children }: { children: React.ReactN
             </nav>
           </details>
 
-          <Link href="/" className="flex shrink-0 items-center gap-2.5">
+          <Link href="/" className="flex min-w-0 shrink-0 items-center gap-2.5">
             {site.logo ? (
               <img src={site.logo} alt={site.brandName} className="h-10 w-auto max-w-40 object-contain" />
             ) : (
-              <span className="font-display text-[28px] leading-none text-brand">{site.brandName}</span>
+              <span className="font-display whitespace-nowrap text-[24px] leading-none text-brand sm:text-[28px]">{site.brandName}</span>
             )}
           </Link>
 
-          <nav className="ml-4 hidden flex-1 items-center gap-0.5 lg:flex">
+          <nav className="ml-2 hidden min-w-0 flex-1 items-center gap-0.5 overflow-hidden lg:flex">
             {nav.map((n: any) => (
               <Link
                 key={n.href}
                 href={n.href}
-                className={`${n.wide ? 'hidden xl:block' : ''} whitespace-nowrap rounded-full px-3 py-1.5 text-[15px] font-medium text-ink-soft hover:bg-brand-soft hover:text-ink`}
+                className="shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 text-[15px] font-medium text-ink-soft hover:bg-brand-soft hover:text-ink"
               >
                 {n.label}
               </Link>
             ))}
           </nav>
 
-          <div className="ml-auto flex items-center gap-2">
+          <div className="ml-auto flex shrink-0 items-center gap-2">
             <form action="/shop" className="hidden sm:block">
               <label className="sr-only" htmlFor="site-search">Search sweets</label>
               <input
                 id="site-search"
                 name="q"
                 placeholder="Search sweets"
-                className="w-40 rounded-full border border-line bg-white px-4 py-2 text-[15px] focus:w-56 focus:outline-brand md:w-48"
+                className="w-36 rounded-full border border-line bg-white px-4 py-2 text-[15px] focus:outline-brand xl:w-44"
               />
             </form>
             {waOrder && wa.headerLink && (
               <Link
                 href={waOrder}
-                className="hidden items-center gap-1.5 whitespace-nowrap rounded-full border-2 border-[#25D366] px-3.5 py-1.5 text-[15px] font-semibold text-[#14532d] hover:bg-[#E7F8EE] md:inline-flex"
+                title="Order on WhatsApp"
+                aria-label="Order on WhatsApp"
+                className="hidden h-10 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-full border-2 border-[#25D366] px-2.5 text-[15px] font-semibold text-[#14532d] hover:bg-[#E7F8EE] md:inline-flex xl:px-3.5"
               >
-                <span className="text-[#25D366]"><WhatsAppIcon /></span> Order on WhatsApp
+                <span className="text-[#25D366]"><WhatsAppIcon size={20} /></span>
+                <span className="hidden xl:inline">Order on WhatsApp</span>
               </Link>
             )}
             <CartButton />
